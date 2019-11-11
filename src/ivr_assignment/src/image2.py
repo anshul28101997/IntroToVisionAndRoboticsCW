@@ -10,7 +10,6 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Float64MultiArray, Float64
 from cv_bridge import CvBridge, CvBridgeError
 
-
 class image_converter:
 
   # Defines publisher and subscriber
@@ -33,7 +32,7 @@ class image_converter:
     except CvBridgeError as e:
       print(e)
     # Uncomment if you want to save the image
-    cv2.imwrite('image1_copy.png', self.cv_image2)
+    cv2.imwrite('image2_copy.png', self.cv_image2)
     im2=cv2.imshow('window2', self.cv_image2)
     cv2.waitKey(1)
 

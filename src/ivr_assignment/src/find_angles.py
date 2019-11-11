@@ -20,10 +20,6 @@ def extractYellow(image):
 	red_part = cv2.inRange(image, np.array([0,110,110]), np.array([5,255,255]))
 	return red_part
 
-def extractOrange(image):
-	red_part = cv2.inRange(image, np.array([10,50,70]), np.array([120,140,160]))
-	return red_part
-
 def findMean(img):
 	# convert the grayscale image to binary image
 	ret,thresh = cv2.threshold(img,127,255,0)
@@ -36,7 +32,7 @@ def findMean(img):
 	return (cX,cY)
 	
 
-img = cv2.imread("image2_copy.png")
+img = cv2.imread("image1_copy.png")
 
 red_image = extractRed(img)
 red_center = (findMean (red_image))
@@ -47,24 +43,14 @@ yellow_center = findMean(yellow_image)
 green_image = extractGreen(img)
 green_center = findMean(green_image)
 
-# For now, extraction of orange is not working properly
-orange_image = extractOrange(img)
-cv2.imshow('window',orange_image)
-cv2.imwrite('orange.png',orange_image)
-cv2.waitKey(2000)
+theta1 = math.atan2((blue_center[1]-yellow_center[1]) , (blue_center[0]-yellow_center[0]))
+theta2 = math.atan2((green_center[1]-blue_center[1])  , (green_center[0]-blue_center[0]))
+theta2 -= theta1
+theta3 = math.atan2((red_center[1]-green_center[1])   , (red_center[0]-green_center[0]))
+theta3 -= (theta2+theta1)
 
-#print(red_center[0])
-
-tetha1 = math.atan2((blue_center[1]-yellow_center[1]) , (blue_center[0]-yellow_center[0]))
-tetha2 = math.atan2((green_center[1]-blue_center[1])  , (green_center[0]-blue_center[0]))
-tetha2 -= tetha1
-#tetha2 %= math.pi
-tetha3 = math.atan2((red_center[1]-green_center[1])   , (red_center[0]-green_center[0]))
-tetha3 -= (tetha2+tetha1)
-#tetha3 %= math.pi
-
-print("tetha1:", tetha1)
-print("tetha2:", tetha2)
-print("tetha3:", tetha3)
+print("theta1:", theta1)
+print("theta2:", theta2)
+print("theta3:", theta3)
 print("errors in angles becuase some portions of the joints were hidden")
 
