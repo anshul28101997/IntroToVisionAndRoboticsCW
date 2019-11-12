@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # Anshul's git code
+import sys
 import cv2
 import math
 import numpy as np
 from cv2 import imread
 import statistics
-
-
+im_file = sys.argv[1]
 def extractRed(image):
    	red_part = cv2.inRange(image, np.array([0,0,110]), np.array([5,5,255]))
     	return red_part
@@ -31,8 +31,11 @@ def findMean(img):
 	cY = int(M["m01"] / M["m00"])
 	return (cX,cY)
 	
+def flip(x):
+	a,b = x
+	return (b,a)
 
-img = cv2.imread("image1_copy.png")
+img = cv2.imread(im_file)
 
 red_image = extractRed(img)
 red_center = (findMean (red_image))
