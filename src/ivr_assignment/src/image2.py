@@ -9,6 +9,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float64MultiArray, Float64
 from cv_bridge import CvBridge, CvBridgeError
+from find_angles import runImage
 
 class image_converter:
 
@@ -33,8 +34,11 @@ class image_converter:
       print(e)
     # Uncomment if you want to save the image
     cv2.imwrite('image2_copy.png', self.cv_image2)
-    #im2=cv2.imshow('window2', self.cv_image2)
-    #cv2.waitKey(1)
+    # ********************************
+    # Do something here to extract information from the image.. maybe?
+    # ********************************
+    cv2.imshow('window2', self.cv_image2)
+    cv2.waitKey(1)
 
     # Publish the results
     try: 
