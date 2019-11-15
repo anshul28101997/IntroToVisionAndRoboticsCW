@@ -10,7 +10,8 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Float64MultiArray, Float64
 from cv_bridge import CvBridge, CvBridgeError
 from find_angles import runImage
-
+from get_target_position import getCenters
+c1 = []	# List of centers
 class image_converter:
 
   # Defines publisher and subscriber
@@ -26,7 +27,8 @@ class image_converter:
 
 
   # Recieve data from camera 1, process it, and publish
-  def callback1(self,data):
+  def callback1(self,data):	
+
     # Recieve the image
     try:
       self.cv_image1 = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -35,19 +37,24 @@ class image_converter:
     
     # Uncomment if you want to save the image
     cv2.imwrite('image1_copy.png', self.cv_image1)
+
     # ********************************
-    # Do something here to extract information from the image.. maybe?
+    # Do something here to extract information from the image
+    centers = getCenters(self.cv_image1,1)
+    c1.append(centers)
     # ********************************
-    cv2.imshow('window1', self.cv_image1)
+    #cv2.imshow('window1', self.cv_image1)
     cv2.waitKey(1)
     # Publish the results
     try: 
       self.image_pub1.publish(self.bridge.cv2_to_imgmsg(self.cv_image1, "bgr8"))
     except CvBridgeError as e:
       print(e)
+	
 
 # call the class
 def main(args):
+
   ic = image_converter()
   try:
     rospy.spin()
@@ -58,3 +65,4 @@ def main(args):
 # run the code if the node is called
 if __name__ == '__main__':
     main(sys.argv)
+    np.save('c1.npy',c1)

@@ -150,6 +150,13 @@ def get3Dcoordinates(center1, center2):
 	center_cam = np.array([center2[1],center1[1],(z1+z2)/2])
 	return center_cam
 
+""" 
+param: center_matrix: 
+						A 2 by 5 matrix, where the first row is the centers in format (t,y,b,g,r) from camera1 and the second row is the same 							but for camera2.
+
+return:		
+						A 1 by 5 matrix, whose elements are the centers in format (t,y,b,g,r) in 3D
+"""
 def convertCentersTo3D(center_matrix):
 	cm_target_3d = get3Dcoordinates(center_matrix[0][0], center_matrix[1][0])
 	yellow_center_3d = get3Dcoordinates(center_matrix[0][1], center_matrix[1][1])
@@ -158,12 +165,14 @@ def convertCentersTo3D(center_matrix):
 	red_center_3d = get3Dcoordinates(center_matrix[0][4], center_matrix[1][4])
 	return [cm_target_3d, yellow_center_3d, blue_center_3d, green_center_3d, red_center_3d]
 
-centers = convertCentersTo3D(getCamCenters())
-target_pos_wrt_base = (centers[0] - centers[1]) * 0.0345
-target_pos_wrt_base[2] = -target_pos_wrt_base[2] 
+def getTargetPosWRTBase():
+	centers = convertCentersTo3D(getCamCenters())
+	target_pos_wrt_base = (centers[0] - centers[1]) * 0.0345
+	target_pos_wrt_base[2] = -target_pos_wrt_base[2] 
+	return target_pos_wrt_base
 #print(pixel2meter())
 #cv2.imshow('window',orange_image)
-#cv2.waitKey(5000)
+#cv2.waitKey(5000)quit
 
 #cv2.imwrite('orange.png',orange_image)
 #cv2.waitKey(5000)
