@@ -6,5 +6,7 @@ How about this:
 
 2. Repeat 1. for image2.py, write 'centers2' to a file c2.npy.
 
+THE STARTING POINT OF THE IMAGES MUST BE THE SAME FOR THIS TO WORK.
+
 Now process the centers so that they have the same size, removing any extra elements from the list. Make them 3D using the function available. Save the 3D coordinates and plot them as a lineplot.
 

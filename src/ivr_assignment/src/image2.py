@@ -35,13 +35,12 @@ class image_converter:
       print(e)
     # Uncomment if you want to save the image
     cv2.imwrite('image2_copy.png', self.cv_image2)
-    print('in image2.py')	
     # ********************************
     # Do something here to extract information from the image
     centers = getCenters(self.cv_image2,2)
     c2.append(centers)
     # ********************************
-    #cv2.imshow('window2', self.cv_image2)
+    cv2.imshow('window2', self.cv_image2)
     cv2.waitKey(1)
 
     # Publish the results
@@ -62,5 +61,5 @@ def main(args):
 # run the code if the node is called
 if __name__ == '__main__':
     main(sys.argv)
-np.save('c2.npy',c2)
+    np.save('c2.npy',c2)
 

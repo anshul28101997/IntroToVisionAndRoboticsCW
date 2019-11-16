@@ -84,4 +84,4 @@ centers_and_angles = runImages()
 
 centers = centers_and_angles[0]
 angles = centers_and_angles[1]
-print(angles)
+#print(angles)

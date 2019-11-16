@@ -77,7 +77,7 @@ def locateSphereTarget(binary_img):
 		return (sphere_centers[0]+sphere_centers[1]) / 2
 
 """ CHANGE image2_copy.png to image1_copy and vv if want to see different view of robot """
-#img = cv2.imread(im_file)
+img = cv2.imread('image2_copy.png')
 
 # We need to extract the orange box, not the sphere
 # The BGR value of the orange BOX is constant because
@@ -103,14 +103,17 @@ def pixel2meter():
 	# Take first estimate from link 1
 	dist_yellow_blue = distance(yellow_center, blue_center)
 	e1 = 2 / dist_yellow_blue
+
 	# Take second estimate from link 3
 	dist_blue_green = distance(blue_center, green_center)
 	e2 = 3 / dist_blue_green
-	# Take third estimate from link 4
+
+	# Take third estimate from link 4	
 	dist_green_red = distance(green_center, red_center)
 	e3 = 2 / dist_blue_green
-	return (e1+e2+e3)/3
 
+	return (e1+e2+e3)/3
+print(pixel2meter)
 def getCenters(img,img_index):
 	orange_image_upper = extractOrangeUpperRegion(img)
 	orange_image_lower = extractOrangeLowerRegion(img)
@@ -121,6 +124,16 @@ def getCenters(img,img_index):
 	blue_center = flip(centers[img_index - 1][1])
 	green_center = flip(centers[img_index - 1][2])
 	red_center = flip(centers[img_index - 1][3])
+	#print(distance(yellow_center, blue_center),'*')
+	#print(distance(blue_center, green_center),'*')
+	#print(distance(green_center, red_center),'*')
+	#img[cm_target] = (255,255,255)
+	#img[yellow_center] = (255,255,255)
+	#img[blue_center] = (255,255,255)
+	#img[green_center] = (255,255,255)
+	#img[red_center] = (255,255,255)
+	#cv2.imshow('www',img)
+	#cv2.waitKey(10000)
 	return [cm_target, yellow_center, blue_center, green_center, red_center]
 # The code below is just for checking if the images are coming out as I expected
 # print to image
@@ -170,6 +183,7 @@ def getTargetPosWRTBase():
 	target_pos_wrt_base = (centers[0] - centers[1]) * 0.0345
 	target_pos_wrt_base[2] = -target_pos_wrt_base[2] 
 	return target_pos_wrt_base
+#getCenters(cv2.imread("image2_copy.png"),1)
 #print(pixel2meter())
 #cv2.imshow('window',orange_image)
 #cv2.waitKey(5000)quit

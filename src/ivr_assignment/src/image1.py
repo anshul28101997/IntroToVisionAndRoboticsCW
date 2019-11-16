@@ -12,6 +12,7 @@ from cv_bridge import CvBridge, CvBridgeError
 from find_angles import runImage
 from get_target_position import getCenters
 c1 = []	# List of centers
+actual_position = []
 class image_converter:
 
   # Defines publisher and subscriber
@@ -43,7 +44,7 @@ class image_converter:
     centers = getCenters(self.cv_image1,1)
     c1.append(centers)
     # ********************************
-    #cv2.imshow('window1', self.cv_image1)
+    cv2.imshow('window1', self.cv_image1)
     cv2.waitKey(1)
     # Publish the results
     try: 
