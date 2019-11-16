@@ -20,7 +20,10 @@ def extractGreen(image):
 def extractYellow(image):
 	red_part = cv2.inRange(image, np.array([0,110,110]), np.array([5,255,255]))
 	return red_part
-
+def extractBaseFrame(image):
+	base_part = cv2.inRange(image, np.array([118,118,118]), np.array([123,123,123]))
+	return base_part
+	
 def findMean(img):
 	# convert the grayscale image to binary image
 	ret,thresh = cv2.threshold(img,127,255,0)
@@ -66,7 +69,9 @@ def getMeans(img_file):
 	yellow_center = findMean(yellow_image)
 	green_image = extractGreen(img)
 	green_center = findMean(green_image)
-	return [yellow_center, blue_center, green_center, red_center]
+	base_frame = extractBaseFrame(img)
+	base_center = findMean(base_frame)
+	return [yellow_center, blue_center, green_center, red_center, base_center]
 
 def runImages():
 	c1 = getMeans('image1_copy.png')

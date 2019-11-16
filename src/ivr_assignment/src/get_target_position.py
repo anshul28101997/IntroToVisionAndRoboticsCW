@@ -76,6 +76,7 @@ def locateSphereTarget(binary_img):
 	else:
 		return (sphere_centers[0]+sphere_centers[1]) / 2
 
+
 """ CHANGE image2_copy.png to image1_copy and vv if want to see different view of robot """
 img = cv2.imread('image2_copy.png')
 
@@ -113,8 +114,9 @@ def pixel2meter():
 	e3 = 2 / dist_blue_green
 
 	return (e1+e2+e3)/3
-print(pixel2meter)
+
 def getCenters(img,img_index):
+
 	orange_image_upper = extractOrangeUpperRegion(img)
 	orange_image_lower = extractOrangeLowerRegion(img)
 	orange_image = cv2.bitwise_or(orange_image_upper, orange_image_lower)
@@ -124,6 +126,7 @@ def getCenters(img,img_index):
 	blue_center = flip(centers[img_index - 1][1])
 	green_center = flip(centers[img_index - 1][2])
 	red_center = flip(centers[img_index - 1][3])
+	base_center = flip(centers[img_index - 1][4])
 	#print(distance(yellow_center, blue_center),'*')
 	#print(distance(blue_center, green_center),'*')
 	#print(distance(green_center, red_center),'*')
@@ -134,7 +137,7 @@ def getCenters(img,img_index):
 	#img[red_center] = (255,255,255)
 	#cv2.imshow('www',img)
 	#cv2.waitKey(10000)
-	return [cm_target, yellow_center, blue_center, green_center, red_center]
+	return [cm_target, yellow_center, blue_center, green_center, red_center, base_center]
 # The code below is just for checking if the images are coming out as I expected
 # print to image
 # cv2.imshow('w', orange_image)
@@ -163,30 +166,17 @@ def get3Dcoordinates(center1, center2):
 	center_cam = np.array([center2[1],center1[1],(z1+z2)/2])
 	return center_cam
 
-""" 
-param: center_matrix: 
-						A 2 by 5 matrix, where the first row is the centers in format (t,y,b,g,r) from camera1 and the second row is the same 							but for camera2.
-
-return:		
-						A 1 by 5 matrix, whose elements are the centers in format (t,y,b,g,r) in 3D
-"""
-def convertCentersTo3D(center_matrix):
-	cm_target_3d = get3Dcoordinates(center_matrix[0][0], center_matrix[1][0])
-	yellow_center_3d = get3Dcoordinates(center_matrix[0][1], center_matrix[1][1])
-	blue_center_3d = get3Dcoordinates(center_matrix[0][2], center_matrix[1][2])
-	green_center_3d = get3Dcoordinates(center_matrix[0][3], center_matrix[1][3])	
-	red_center_3d = get3Dcoordinates(center_matrix[0][4], center_matrix[1][4])
-	return [cm_target_3d, yellow_center_3d, blue_center_3d, green_center_3d, red_center_3d]
 
 def getTargetPosWRTBase():
 	centers = convertCentersTo3D(getCamCenters())
 	target_pos_wrt_base = (centers[0] - centers[1]) * 0.0345
 	target_pos_wrt_base[2] = -target_pos_wrt_base[2] 
 	return target_pos_wrt_base
-#getCenters(cv2.imread("image2_copy.png"),1)
+
 #print(pixel2meter())
 #cv2.imshow('window',orange_image)
 #cv2.waitKey(5000)quit
 
 #cv2.imwrite('orange.png',orange_image)
 #cv2.waitKey(5000)
+
