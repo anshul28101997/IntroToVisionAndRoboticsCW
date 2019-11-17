@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+import rosbag
 #from get_target_position import convertCentersTo3D
 def adjustSize(c1,c2):
 	size1,_,_ = c1.shape
@@ -66,16 +67,37 @@ target_positions = np.asarray(target_positions)
 x_values = target_positions[:,0]
 y_values = target_positions[:,1]
 z_values = target_positions[:,2]
+required_size = x_values.shape[0]
 np.save('xs.npy',x_values)
 np.save('ys.npy',x_values)
 np.save('zs.npy',x_values)
 # For now, assume that target_pos_wrt_base is correct
-plt.figure(1)
-plt.plot(x_values)
-plt.plot(y_values)
-plt.plot(z_values)
-plt.legend(['x','y','z'])
-plt.xlabel('Time')
-plt.ylabel('Co-ordinates wrt base')
+#plt.figure(1)
+#plt.plot(x_values)
+#plt.plot(y_values)
+#plt.plot(z_values)
+#plt.legend(['x','y','z'])
+#plt.xlabel('Time')
+#plt.ylabel('Co-ordinates wrt base')
+#plt.show()
 
-plt.show()
+# How to read a rosbag file
+""" Input: file_name of rosbag file
+	Ouput: numpy array of numbers (co-ordinates of msg of rosbag)
+"""
+def parseRosBag(bag_file):
+	bag = rosbag.Bag(bag_file)
+	co_ordinates = []
+	for topic, msg, t in bag.read_messages():
+		string = str(msg)
+		n = len(string)
+		number = float(string[6:n-1])
+		co_ordinates.append(number)
+	bag.close()
+	return co_ordinates
+x_values_true = parseRosBag('x_values.bag')
+x_values_true = x_values_true[0:required_size-1]
+y_values_true = parseRosBag('y_values.bag')
+y_values_true = y_values_true[0:required_size-1]
+z_values_true = parseRosBag('z_values.bag')
+z_values_true = z_values_true[0:required_size-1]
