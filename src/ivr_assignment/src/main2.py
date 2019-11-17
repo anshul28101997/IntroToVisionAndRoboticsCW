@@ -101,3 +101,28 @@ y_values_true = parseRosBag('y_values.bag')
 y_values_true = y_values_true[0:required_size-1]
 z_values_true = parseRosBag('z_values.bag')
 z_values_true = z_values_true[0:required_size-1]
+
+# Let's plot!
+plt.figure(1)
+plt.plot(x_values_true)
+plt.plot(x_values)
+plt.legend(['True positions','Predicted positions'])
+plt.xlabel('Time')
+plt.ylabel('x co-ordinate')
+plt.show()
+
+plt.figure(2)
+plt.plot(y_values_true)
+plt.plot(y_values)
+plt.legend(['True positions','Predicted positions'])
+plt.xlabel('Time')
+plt.ylabel('y co-ordinate')
+plt.show()
+
+plt.figure(3)
+plt.plot(z_values_true)
+plt.plot(z_values)
+plt.legend(['True positions','Predicted positions'])
+plt.xlabel('Time')
+plt.ylabel('z co-ordinate')
+plt.show()
