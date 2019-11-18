@@ -40,8 +40,8 @@ class image_converter:
     centers = getCenters(self.cv_image2,2)
     c2.append(centers)
     # ********************************
-    cv2.imshow('window2', self.cv_image2)
-    cv2.waitKey(1)
+    #cv2.imshow('window2', self.cv_image2)
+    #cv2.waitKey(1)
 
     # Publish the results
     try: 

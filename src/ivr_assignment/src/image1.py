@@ -44,8 +44,8 @@ class image_converter:
     centers = getCenters(self.cv_image1,1)
     c1.append(centers)
     # ********************************
-    cv2.imshow('window1', self.cv_image1)
-    cv2.waitKey(1)
+    #cv2.imshow('window1', self.cv_image1)
+    #cv2.waitKey(1)
     # Publish the results
     try: 
       self.image_pub1.publish(self.bridge.cv2_to_imgmsg(self.cv_image1, "bgr8"))
