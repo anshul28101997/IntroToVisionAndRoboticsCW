@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 import rosbag
-#from get_target_position import convertCentersTo3D
+from get_target_position import distance
 def adjustSize(c1,c2):
 	size1,_,_ = c1.shape
 	size2,_,_ = c2.shape
@@ -52,25 +52,41 @@ def convertCentersTo3D(center_matrix):
 	base_center_3d = get3Dcoordinates(center_matrix[0][5], center_matrix[1][5])
 	return [cm_target_3d, yellow_center_3d, blue_center_3d, green_center_3d, red_center_3d, base_center_3d]
 
+def estimatePixel2Meter(yellow_center, blue_center, green_center, red_center):
+	# Take first estimate from link 1
+	dist_yellow_blue = distance(yellow_center, blue_center)
+	e1 = 2 / dist_yellow_blue
+
+	# Take second estimate from link 3
+	dist_blue_green = distance(blue_center, green_center)
+	e2 = 3 / dist_blue_green
+
+	# Take third estimate from link 4	
+	dist_green_red = distance(green_center, red_center)
+	e3 = 2 / dist_blue_green
+	return (e1+e2+e3)/3
+
 target_positions = []
 centersIn3D = []
 data1, data2 = adjustSize(np.load('c1.npy'), np.load('c2.npy'))
 size,_,_ = data1.shape
+
 for i in range(0,size):
 	a = convertCentersTo3D([data1[i],data2[i]])
 	centersIn3D.append(a)
+	print(a[0], a[5])
 	target_pos_wrt_base = (a[0] - a[5]) * 0.0345
-	target_pos_wrt_base[2] = -target_pos_wrt_base[2] 
+	target_pos_wrt_base[2] = -target_pos_wrt_base[2]
 	target_positions.append(target_pos_wrt_base)
 target_positions = np.asarray(target_positions)
-
 x_values = target_positions[:,0]
+#print(np.asarray(x_values))
 y_values = target_positions[:,1]
 z_values = target_positions[:,2]
 required_size = x_values.shape[0]
-np.save('xs.npy',x_values)
-np.save('ys.npy',x_values)
-np.save('zs.npy',x_values)
+#np.save('xs.npy',x_values)
+#np.save('ys.npy',y_values)
+#np.save('zs.npy',z_values)
 # For now, assume that target_pos_wrt_base is correct
 #plt.figure(1)
 #plt.plot(x_values)
@@ -103,6 +119,7 @@ z_values_true = parseRosBag('z_values.bag')
 z_values_true = z_values_true[0:required_size-1]
 
 # Let's plot!
+
 plt.figure(1)
 plt.plot(x_values_true)
 plt.plot(x_values)

@@ -13,6 +13,8 @@ from find_angles import runImage
 from get_target_position import getCenters
 c1 = []	# List of centers
 actual_position = []
+img_test = cv2.imread('image1_copy.png')
+
 class image_converter:
 
   # Defines publisher and subscriber
@@ -44,8 +46,8 @@ class image_converter:
     centers = getCenters(self.cv_image1,1)
     c1.append(centers)
     # ********************************
-    #cv2.imshow('window1', self.cv_image1)
-    #cv2.waitKey(1)
+    cv2.imshow('window1', self.cv_image1)
+    cv2.waitKey(1)
     # Publish the results
     try: 
       self.image_pub1.publish(self.bridge.cv2_to_imgmsg(self.cv_image1, "bgr8"))
@@ -67,3 +69,8 @@ def main(args):
 if __name__ == '__main__':
     main(sys.argv)
     np.save('c1.npy',c1)
+    #for center in c1:
+    #    target = center[0]
+    #    img_test[target] = (255,255,255)
+    #cv2.imshow('windowww',img_test)
+    #cv2.waitKey(100000)
