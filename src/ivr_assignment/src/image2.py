@@ -9,7 +9,6 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float64MultiArray, Float64
 from cv_bridge import CvBridge, CvBridgeError
-from find_angles import runImage
 from get_target_position import getCenters
 c2 = []
 img_test = cv2.imread('image2_copy.png')
