@@ -9,10 +9,9 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float64MultiArray, Float64
 from cv_bridge import CvBridge, CvBridgeError
-#from image_processing import getCenters
+from image_processing import getCenters
 c1 = []	# List of centers
 actual_position = []
-
 
 class image_converter:
 
@@ -41,8 +40,9 @@ class image_converter:
     cv2.imwrite('image1_copy.png', self.cv_image1)
     # ********************************
     # Do something here to extract information from the image
-    #centers = getCenters(self.cv_image1,1)
-    #c1.append(centers)
+    centers = getCenters(self.cv_image1,1)
+    c1.append(centers)
+    
     # ********************************
     cv2.imshow('window1', self.cv_image1)
     cv2.waitKey(1)

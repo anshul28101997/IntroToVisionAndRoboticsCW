@@ -200,6 +200,7 @@ def parseRosBag(bag_file):
 def run():
 	target_positions = []
 	centersIn3D = []
+	
 	data1, data2 = adjustSize(np.load('c1.npy'), np.load('c2.npy'))
 	size,_,_ = data1.shape
 	for i in range(0,size):
@@ -247,7 +248,7 @@ def run():
 	plt.ylabel('z co-ordinate')
 	plt.show()
 
-#run() # Uncomment to show the predicted vs. actual graphs for target position
+run() # Uncomment to show the predicted vs. actual graphs for target position
 
 """ ******************************************* FORWARD KINEMATICS PART ************************************************** """
 
@@ -384,7 +385,7 @@ def getEndEffectorPosition(tetha): # List of 4 angles in radian
 
 #(array([-0.069,  0.   ,  6.21 ]), 'by image processing')
 #(array([-3.061617e-16,  3.061617e-16,  7.000000e+00]), 'by Forward Kinematics')
-
+"""
 img_pro = np.array([np.array([-0.0345, -3.3465,  4.8645]),
 		   np.array([3.8295, 0.759 , 0.3795]),
            np.array([ 4.1745, -3.1395,  1.3455]),
@@ -415,6 +416,15 @@ x_fk = fk[:,0]
 y_fk = fk[:,1]
 z_fk = fk[:,2]
 
+x = list(range(0,9))
 plt.figure(1)
+plt.title("z - Coordinate Comparison")
+plt.plot(x,x, color = 'red', linestyle = 'dashed')
+plt.legend(['The line y = x'])
 sns.scatterplot((z_img_pro),(z_fk))
+
+plt.xlabel("Position of end effector by Image Processing")
+plt.ylabel("Position of end effector by Forward Kinematics")
 plt.show()
+"""
+
