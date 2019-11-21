@@ -7,6 +7,8 @@ import numpy as np
 import statistics
 import matplotlib.pyplot as plt
 import rosbag
+import seaborn as sns
+pi = math.pi
 """ ******************************** THIS PART OF THE CODE IS FOR GETTING THE ANGLES AND THE CENTERS ***************************** """
 def flip(x):
 	a,b = x
@@ -176,6 +178,12 @@ def adjustSize(c1,c2):
 			c2 = c2[list(range(0,size2-1)),:,:]
 			return adjustSize(c1,c2)
 
+centers_from_cameras = getCamCenters()
+centers_in_3D = convertCentersTo3D(centers_from_cameras)
+end_effector_position_wrt_yellow_center = (centers_in_3D[4] - centers_in_3D[1])*0.0345
+end_effector_position_wrt_yellow_center[2] = -end_effector_position_wrt_yellow_center[2]
+print(end_effector_position_wrt_yellow_center, "by image processing")
+
 """ MAIN """
 
 def parseRosBag(bag_file):
@@ -239,4 +247,174 @@ def run():
 	plt.ylabel('z co-ordinate')
 	plt.show()
 
-run()
+#run() # Uncomment to show the predicted vs. actual graphs for target position
+
+""" ******************************************* FORWARD KINEMATICS PART ************************************************** """
+
+def H_table (tetha): # The Hartenberg convention #tetha, alpha, r, d
+    return np.array([
+        [(pi/2)+tetha[0], (pi/2), 0, 2],
+        [(pi/2)+tetha[1], (pi/2), 0, 0],
+        [tetha[2]    , (-1*pi/2), 3, 0],
+        [tetha[3]    , 0        , 2, 0]
+        ])
+
+def T (param):
+    
+    tetha = param[0]
+    alpha = param[1]
+    r = param[2]
+    d = param[3] 
+    
+    c_t = math.cos(tetha)
+    s_t = math.sin(tetha)
+    c_a = math.cos(alpha)
+    s_a = math.sin(alpha)
+    
+    T_tetha = np.array([
+        [c_t, -1*s_t, 0, 0],
+        [s_t, c_t, 0, 0],
+        [0 , 0, 1, 0],
+        [0 , 0, 0, 1]
+        ])
+    T_d = np.array([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0 ,0, 1, d],
+        [0 ,0, 0, 1]
+        ])
+    T_r = np.array([
+        [1, 0, 0, r],
+        [0, 1, 0, 0],
+        [0 ,0, 1, 0],
+        [0 ,0, 0, 1]
+        ])
+    T_alpha = np.array([
+        [1 , 0, 0, 0],
+        [0 ,c_a, -1*s_a, 0],
+        [0 , s_a, c_a, 0],
+        [0 , 0, 0, 1]
+        ])
+    temp = np.eye(4)
+    temp = np.matmul (temp, T_tetha)
+    temp = np.matmul (temp, T_d)
+    temp = np.matmul (temp, T_r)
+    temp = np.matmul (temp, T_alpha)
+    return temp
+
+def getEndEffectorPosition(tetha): # List of 4 angles in radian
+	H_tab = H_table(tetha)
+	T01 = T(H_tab[0])
+	T12 = T(H_tab[1])
+	T23 = T(H_tab[2])
+	T34 = T(H_tab[3])
+	T04 = np.matmul(np.matmul(np.matmul (T01, T12), T23), T34)
+	temp = (T04[0:3,3])
+	return temp
+
+# Now, to check output in 10 random positions of the robot
+
+# Configuration 1, [0,pi/4,0,0]
+# position = getEndEffectorPosition([0,pi/4,0,0])
+# print(position, "by Forward Kinematics")
+
+# Output:
+# (array([-0.0345, -3.3465,  4.8645]), 'by image processing')
+# (array([-4.32978028e-16, -3.53553391e+00,  5.53553391e+00]), 'by Forward Kinematics')
+
+# Configuration 2 [pi/4,pi/3,pi/3,pi/3]
+# position = getEndEffectorPosition([pi/4,pi/3,pi/3,pi/3])
+# print(position, "by Forward Kinematics")
+
+# (array([3.8295, 0.759 , 0.3795]), 'by image processing')
+# (array([4.28660705, 0.61237244, 1.5       ]), 'by Forward Kinematics')
+
+# Configuration 3 [0,pi/4,pi/3,pi/4]
+#position = getEndEffectorPosition([0,pi/4,pi/3,pi/4])
+#print(position, "by Forward Kinematics")
+
+#(array([ 4.1745, -3.1395,  1.3455]), 'by image processing')
+#(array([ 3.82282108, -2.56066017,  2.56066017]), 'by Forward Kinematics')
+
+# Configuration 4 [pi,0,pi/3,0]
+#position = getEndEffectorPosition([pi,0,pi/3,0])
+#print(position, "by Forward Kinematics")
+
+#(array([-4.14 ,  0.   ,  3.933]), 'by image processing')
+#(array([-4.33012702e+00,  9.07494389e-16,  4.50000000e+00]), 'by Forward Kinematics')
+
+# Configuration 5 [pi,pi/2,-pi/3,-pi/2]
+#position = getEndEffectorPosition([pi,pi/2,-pi/3,-pi/2])
+#print(position, "by Forward Kinematics")
+
+#(array([2.139, 1.725, 3.45 ]), 'by image processing')
+#(array([2.59807621, 1.5       , 4.        ]), 'by Forward Kinematics')
+
+# Configuration 6 [-pi/2,pi/2,pi/3,-pi/2]
+#position = getEndEffectorPosition([-pi/2,pi/2,pi/3,-pi/2])
+#print(position, "by Forward Kinematics")
+
+#(array([-1.6905, -2.208 ,  3.4155]), 'by image processing')
+#(array([-1.5       , -2.59807621,  4.        ]), 'by Forward Kinematics')
+
+# Configuration 7 [pi,-pi/6,-pi/6,-pi/6]
+#position = getEndEffectorPosition([pi,-pi/6,-pi/6,-pi/6])
+#print(position, "by Forward Kinematics")
+
+#(array([ 2.691 , -3.2085,  4.3125]), 'by image processing')
+#(array([ 2.3660254 , -2.91506351,  5.04903811]), 'by Forward Kinematics')
+
+# Configuration 8 [0,pi/6,pi/2,-pi/3]
+#position = getEndEffectorPosition([0,pi/6,pi/2,-pi/3])
+#print(position, "by Forward Kinematics")
+
+#(array([3.4155, 1.932 , 2.07  ]), 'by image processing')
+#(array([4.       , 1.5      , 2.8660254]), 'by Forward Kinematics')
+
+# Configuration 9 [pi/7,0,pi/4,-pi/4]
+#position = getEndEffectorPosition([pi/7,0,pi/4,-pi/4])
+#print(position, "by Forward Kinematics")
+
+#(array([1.6905, 2.898 , 4.416 ]), 'by image processing')
+#(array([2.19860819, 2.62845253, 5.12132034]), 'by Forward Kinematics')
+
+# Configuration 10 [0,0,0,0]
+#position = getEndEffectorPosition([0,0,0,0])
+#print(position, "by Forward Kinematics")
+
+#(array([-0.069,  0.   ,  6.21 ]), 'by image processing')
+#(array([-3.061617e-16,  3.061617e-16,  7.000000e+00]), 'by Forward Kinematics')
+
+img_pro = np.array([np.array([-0.0345, -3.3465,  4.8645]),
+		   np.array([3.8295, 0.759 , 0.3795]),
+           np.array([ 4.1745, -3.1395,  1.3455]),
+		   np.array([-4.14 ,  0.   ,  3.933]),
+		   np.array([2.139, 1.725, 3.45 ]),
+		   np.array([-1.6905, -2.208 ,  3.4155]),
+		   np.array([ 2.691 , -3.2085,  4.3125]),
+		   np.array([3.4155, 1.932 , 2.07  ]),
+		   np.array([1.6905, 2.898 , 4.416 ]),
+		   np.array([-0.069,  0.   ,  6.21 ])])
+
+fk = np.array([np.array([-4.32978028e-16, -3.53553391e+00,  5.53553391e+00]),
+      np.array([4.28660705, 0.61237244, 1.5]),
+      np.array([ 3.82282108, -2.56066017, 2.56066017]),
+	  np.array([-4.33012702e+00,  9.07494389e-16,  4.50000000e+00]),
+      np.array([2.59807621, 1.5, 4]),
+	  np.array([-1.5, -2.59807621, 4]),
+	  np.array([ 2.3660254 , -2.91506351,  5.04903811]),
+      np.array([4, 1.5, 2.8660254]),
+      np.array([2.19860819, 2.62845253, 5.12132034]),
+      np.array([-3.061617e-16,  3.061617e-16,  7.000000e+00])])
+
+x_img_pro = img_pro[:,0]
+y_img_pro = img_pro[:,1]
+z_img_pro = img_pro[:,2]
+
+x_fk = fk[:,0]
+y_fk = fk[:,1]
+z_fk = fk[:,2]
+
+plt.figure(1)
+sns.scatterplot((z_img_pro),(z_fk))
+plt.show()
