@@ -90,25 +90,6 @@ def getAngles(cs):
 			theta3 -= (theta2+theta1)
 	return [theta1, theta2, theta3]
 
-def isNone(obj):
-	return obj == None
-
-#def normalizeAngles(angles):
-#	angles_cam1 = angles[0]
-#	angles_cam2 = angles[1]
-#	# The first angle is always shifted by -pi/2
-#	if (not isNone(angles_cam1[0])):
-#		angles_cam1[0] = angles_cam1[0] + pi/2
-#	if (not isNone(angles_cam2[0])):
-#		angles_cam2[0] = angles_cam2[0] + pi/2
-#	if (not isNone(angles_cam1[1])):
-#		angles_cam1[1] = -angles_cam1[1]
-#	if (not isNone(angles_cam2[1])):
-#		angles_cam2[1] = angles_cam2[1]
-#	if (not isNone(angles_cam1[2])):
-#		angles_cam1[2] = -angles_cam1[2]
-#	if (not isNone(angles_cam2[2])):
-#		angles_cam2[2] = -angles_cam2[2]
 
 def getMeans(img_file):
 	img = cv2.imread(img_file)
@@ -132,10 +113,7 @@ def runImages():
 	return [[c1, c2],[a1,a2]]		
 
 """ Get the centers and the angles for ONLY THE ROBOT """
-centers_and_angles = runImages()
-centers = centers_and_angles[0]
-#angles = centers_and_angles[1]
-#print(angles)
+
 """ Now, get the center of the target sphere and all the robot centers, completely processed """
 
 def getCenters(img,img_index):
@@ -280,7 +258,6 @@ def run():
 	plt.ylabel('z co-ordinate')
 	plt.show()
 
-#run() # Uncomment to show the predicted vs. actual graphs for target position
 
 """ ******************************************* FORWARD KINEMATICS PART ************************************************** """
 
@@ -345,118 +322,152 @@ def getEndEffectorPosition(tetha): # List of 4 angles in radian
 	temp = (T04[0:3,3])
 	return temp
 
-# Now, to check output in 10 random positions of the robot
+centers_and_angles = runImages()
+centers = centers_and_angles[0]
 
-# Configuration 1, [0,pi/4,0,0]
-# position = getEndEffectorPosition([0,pi/4,0,0])
-# print(position, "by Forward Kinematics")
+def main():
+	centers_and_angles = runImages()
+	centers = centers_and_angles[0]
+	angles = centers_and_angles[1]
+	print(angles[0], 'angles with respect to the camera1')
+	print(angles[1], 'angles with respect to the camera2')
 
-# Output:
-# (array([-0.0345, -3.3465,  4.8645]), 'by image processing')
-# (array([-4.32978028e-16, -3.53553391e+00,  5.53553391e+00]), 'by Forward Kinematics')
+	run()
 
-# Configuration 2 [pi/4,pi/3,pi/3,pi/3]
-# position = getEndEffectorPosition([pi/4,pi/3,pi/3,pi/3])
-# print(position, "by Forward Kinematics")
+	# Now, to check output in 10 random positions of the robot
 
-# (array([3.8295, 0.759 , 0.3795]), 'by image processing')
-# (array([4.28660705, 0.61237244, 1.5       ]), 'by Forward Kinematics')
+	# Configuration 1, [0,pi/4,0,0]
+	position = getEndEffectorPosition([0,pi/4,0,0])
+	print(position, "by Forward Kinematics for joint angles [0,pi/4,0,0]")
 
-# Configuration 3 [0,pi/4,pi/3,pi/4]
-#position = getEndEffectorPosition([0,pi/4,pi/3,pi/4])
-#print(position, "by Forward Kinematics")
+	# Output:
+	# (array([-0.0345, -3.3465,  4.8645]), 'by image processing')
+	# (array([-4.32978028e-16, -3.53553391e+00,  5.53553391e+00]), 'by Forward Kinematics')
 
-#(array([ 4.1745, -3.1395,  1.3455]), 'by image processing')
-#(array([ 3.82282108, -2.56066017,  2.56066017]), 'by Forward Kinematics')
+	# Configuration 2 [pi/4,pi/3,pi/3,pi/3]
+	position = getEndEffectorPosition([pi/4,pi/3,pi/3,pi/3])
+	print(position, "by Forward Kinematics for joint angles [pi/4,pi/3,pi/3,pi/3]")
 
-# Configuration 4 [pi,0,pi/3,0]
-#position = getEndEffectorPosition([pi,0,pi/3,0])
-#print(position, "by Forward Kinematics")
+	# (array([3.8295, 0.759 , 0.3795]), 'by image processing')
+	# (array([4.28660705, 0.61237244, 1.5       ]), 'by Forward Kinematics')
 
-#(array([-4.14 ,  0.   ,  3.933]), 'by image processing')
-#(array([-4.33012702e+00,  9.07494389e-16,  4.50000000e+00]), 'by Forward Kinematics')
+	# Configuration 3 [0,pi/4,pi/3,pi/4]
+	position = getEndEffectorPosition([0,pi/4,pi/3,pi/4])
+	print(position, "by Forward Kinematics for joint angles [0,pi/4,pi/3,pi/4]")
 
-# Configuration 5 [pi,pi/2,-pi/3,-pi/2]
-#position = getEndEffectorPosition([pi,pi/2,-pi/3,-pi/2])
-#print(position, "by Forward Kinematics")
+	#(array([ 4.1745, -3.1395,  1.3455]), 'by image processing')
+	#(array([ 3.82282108, -2.56066017,  2.56066017]), 'by Forward Kinematics')
 
-#(array([2.139, 1.725, 3.45 ]), 'by image processing')
-#(array([2.59807621, 1.5       , 4.        ]), 'by Forward Kinematics')
+	# Configuration 4 [pi,0,pi/3,0]
+	position = getEndEffectorPosition([pi,0,pi/3,0])
+	print(position, "by Forward Kinematics for joint angles [pi,0,pi/3,0]")
 
-# Configuration 6 [-pi/2,pi/2,pi/3,-pi/2]
-#position = getEndEffectorPosition([-pi/2,pi/2,pi/3,-pi/2])
-#print(position, "by Forward Kinematics")
+	#(array([-4.14 ,  0.   ,  3.933]), 'by image processing')
+	#(array([-4.33012702e+00,  9.07494389e-16,  4.50000000e+00]), 'by Forward Kinematics')
 
-#(array([-1.6905, -2.208 ,  3.4155]), 'by image processing')
-#(array([-1.5       , -2.59807621,  4.        ]), 'by Forward Kinematics')
+	# Configuration 5 [pi,pi/2,-pi/3,-pi/2]
+	position = getEndEffectorPosition([pi,pi/2,-pi/3,-pi/2])
+	print(position, "by Forward Kinematics for joint angles [pi,pi/2,-pi/3,-pi/2]")
 
-# Configuration 7 [pi,-pi/6,-pi/6,-pi/6]
-#position = getEndEffectorPosition([pi,-pi/6,-pi/6,-pi/6])
-#print(position, "by Forward Kinematics")
+	#(array([2.139, 1.725, 3.45 ]), 'by image processing')
+	#(array([2.59807621, 1.5       , 4.        ]), 'by Forward Kinematics')
 
-#(array([ 2.691 , -3.2085,  4.3125]), 'by image processing')
-#(array([ 2.3660254 , -2.91506351,  5.04903811]), 'by Forward Kinematics')
+	# Configuration 6 [-pi/2,pi/2,pi/3,-pi/2]
+	position = getEndEffectorPosition([-pi/2,pi/2,pi/3,-pi/2])
+	print(position, "by Forward Kinematics for joint angles [-pi/2,pi/2,pi/3,-pi/2]")
 
-# Configuration 8 [0,pi/6,pi/2,-pi/3]
-#position = getEndEffectorPosition([0,pi/6,pi/2,-pi/3])
-#print(position, "by Forward Kinematics")
+	#(array([-1.6905, -2.208 ,  3.4155]), 'by image processing')
+	#(array([-1.5       , -2.59807621,  4.        ]), 'by Forward Kinematics')
 
-#(array([3.4155, 1.932 , 2.07  ]), 'by image processing')
-#(array([4.       , 1.5      , 2.8660254]), 'by Forward Kinematics')
+	# Configuration 7 [pi,-pi/6,-pi/6,-pi/6]
+	position = getEndEffectorPosition([pi,-pi/6,-pi/6,-pi/6])
+	print(position, "by Forward Kinematics for joint angles [pi,-pi/6,-pi/6,-pi/6]")
 
-# Configuration 9 [pi/7,0,pi/4,-pi/4]
-#position = getEndEffectorPosition([pi/7,0,pi/4,-pi/4])
-#print(position, "by Forward Kinematics")
+	#(array([ 2.691 , -3.2085,  4.3125]), 'by image processing')
+	#(array([ 2.3660254 , -2.91506351,  5.04903811]), 'by Forward Kinematics')
 
-#(array([1.6905, 2.898 , 4.416 ]), 'by image processing')
-#(array([2.19860819, 2.62845253, 5.12132034]), 'by Forward Kinematics')
+	# Configuration 8 [0,pi/6,pi/2,-pi/3]
+	position = getEndEffectorPosition([0,pi/6,pi/2,-pi/3])
+	print(position, "by Forward Kinematics for joint angles [0,pi/6,pi/2,-pi/3]")
 
-# Configuration 10 [0,0,0,0]
-#position = getEndEffectorPosition([0,0,0,0])
-#print(position, "by Forward Kinematics")
+	#(array([3.4155, 1.932 , 2.07  ]), 'by image processing')
+	#(array([4.       , 1.5      , 2.8660254]), 'by Forward Kinematics')
 
-#(array([-0.069,  0.   ,  6.21 ]), 'by image processing')
-#(array([-3.061617e-16,  3.061617e-16,  7.000000e+00]), 'by Forward Kinematics')
-"""
-img_pro = np.array([np.array([-0.0345, -3.3465,  4.8645]),
-		   np.array([3.8295, 0.759 , 0.3795]),
-           np.array([ 4.1745, -3.1395,  1.3455]),
-		   np.array([-4.14 ,  0.   ,  3.933]),
-		   np.array([2.139, 1.725, 3.45 ]),
-		   np.array([-1.6905, -2.208 ,  3.4155]),
-		   np.array([ 2.691 , -3.2085,  4.3125]),
-		   np.array([3.4155, 1.932 , 2.07  ]),
-		   np.array([1.6905, 2.898 , 4.416 ]),
-		   np.array([-0.069,  0.   ,  6.21 ])])
+	# Configuration 9 [pi/7,0,pi/4,-pi/4]
+	position = getEndEffectorPosition([pi/7,0,pi/4,-pi/4])
+	print(position, "by Forward Kinematics for joint angles [pi/7,0,pi/4,-pi/4]")
 
-fk = np.array([np.array([-4.32978028e-16, -3.53553391e+00,  5.53553391e+00]),
-      np.array([4.28660705, 0.61237244, 1.5]),
-      np.array([ 3.82282108, -2.56066017, 2.56066017]),
-	  np.array([-4.33012702e+00,  9.07494389e-16,  4.50000000e+00]),
-      np.array([2.59807621, 1.5, 4]),
-	  np.array([-1.5, -2.59807621, 4]),
-	  np.array([ 2.3660254 , -2.91506351,  5.04903811]),
-      np.array([4, 1.5, 2.8660254]),
-      np.array([2.19860819, 2.62845253, 5.12132034]),
-      np.array([-3.061617e-16,  3.061617e-16,  7.000000e+00])])
+	#(array([1.6905, 2.898 , 4.416 ]), 'by image processing')
+	#(array([2.19860819, 2.62845253, 5.12132034]), 'by Forward Kinematics')
 
-x_img_pro = img_pro[:,0]
-y_img_pro = img_pro[:,1]
-z_img_pro = img_pro[:,2]
+	# Configuration 10 [0,0,0,0]
+	position = getEndEffectorPosition([0,0,0,0])
+	print(position, "by Forward Kinematics for joint angles [0,0,0,0]")
 
-x_fk = fk[:,0]
-y_fk = fk[:,1]
-z_fk = fk[:,2]
+	#(array([-0.069,  0.   ,  6.21 ]), 'by image processing')
+	#(array([-3.061617e-16,  3.061617e-16,  7.000000e+00]), 'by Forward Kinematics')
 
-x = list(range(0,9))
-plt.figure(1)
-plt.title("z - Coordinate Comparison")
-plt.plot(x,x, color = 'red', linestyle = 'dashed')
-plt.legend(['The line y = x'])
-sns.scatterplot((z_img_pro),(z_fk))
+	img_pro = np.array([np.array([-0.0345, -3.3465,  4.8645]),
+			   np.array([3.8295, 0.759 , 0.3795]),
+		       np.array([ 4.1745, -3.1395,  1.3455]),
+			   np.array([-4.14 ,  0.   ,  3.933]),
+			   np.array([2.139, 1.725, 3.45 ]),
+			   np.array([-1.6905, -2.208 ,  3.4155]),
+			   np.array([ 2.691 , -3.2085,  4.3125]),
+			   np.array([3.4155, 1.932 , 2.07  ]),
+			   np.array([1.6905, 2.898 , 4.416 ]),
+			   np.array([-0.069,  0.   ,  6.21 ])])
 
-plt.xlabel("Position of end effector by Image Processing")
-plt.ylabel("Position of end effector by Forward Kinematics")
-plt.show()
-"""
+	fk = np.array([np.array([-4.32978028e-16, -3.53553391e+00,  5.53553391e+00]),
+		  np.array([4.28660705, 0.61237244, 1.5]),
+		  np.array([ 3.82282108, -2.56066017, 2.56066017]),
+		  np.array([-4.33012702e+00,  9.07494389e-16,  4.50000000e+00]),
+		  np.array([2.59807621, 1.5, 4]),
+		  np.array([-1.5, -2.59807621, 4]),
+		  np.array([ 2.3660254 , -2.91506351,  5.04903811]),
+		  np.array([4, 1.5, 2.8660254]),
+		  np.array([2.19860819, 2.62845253, 5.12132034]),
+		  np.array([-3.061617e-16,  3.061617e-16,  7.000000e+00])])
 
+	x_img_pro = img_pro[:,0]
+	y_img_pro = img_pro[:,1]
+	z_img_pro = img_pro[:,2]
+
+	x_fk = fk[:,0]
+	y_fk = fk[:,1]
+	z_fk = fk[:,2]
+
+	x = list(range(-4,5))
+	plt.figure(1)
+	plt.title("x - Coordinate Comparison")
+	plt.plot(x,x, color = 'red', linestyle = 'dashed')
+	plt.legend(['The line y = x'])
+	sns.scatterplot((x_img_pro),(x_fk))
+
+	plt.xlabel("Position of end effector by Image Processing")
+	plt.ylabel("Position of end effector by Forward Kinematics")
+	plt.show()
+
+	x = list(range(-4,5))
+	plt.figure(1)
+	plt.title("y - Coordinate Comparison")
+	plt.plot(x,x, color = 'red', linestyle = 'dashed')
+	plt.legend(['The line y = x'])
+	sns.scatterplot((y_img_pro),(y_fk))
+
+	plt.xlabel("Position of end effector by Image Processing")
+	plt.ylabel("Position of end effector by Forward Kinematics")
+	plt.show()
+
+	x = list(range(0,9))
+	plt.figure(1)
+	plt.title("z - Coordinate Comparison")
+	plt.plot(x,x, color = 'red', linestyle = 'dashed')
+	plt.legend(['The line y = x'])
+	sns.scatterplot((z_img_pro),(z_fk))
+
+	plt.xlabel("Position of end effector by Image Processing")
+	plt.ylabel("Position of end effector by Forward Kinematics")
+	plt.show()
+if __name__ == "__main__":
+	main()
