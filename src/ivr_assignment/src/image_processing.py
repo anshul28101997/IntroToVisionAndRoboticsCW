@@ -11,6 +11,8 @@ import seaborn as sns
 pi = math.pi
 """ ******************************** THIS PART OF THE CODE IS FOR GETTING THE ANGLES AND THE CENTERS ***************************** """
 def flip(x):
+	if (x == None):
+		return None
 	a,b = x
 	return (b,a)
 
@@ -49,9 +51,12 @@ def findMean(img):
 	M = cv2.moments(thresh)
  
 	# calculate x,y coordinate of center
-	cX = int(M["m10"] / M["m00"])
-	cY = int(M["m01"] / M["m00"])
-	return (cX,cY)
+	if (M["m00"] != 0):
+		cX = int(M["m10"] / M["m00"])
+		cY = int(M["m01"] / M["m00"])
+		return (cX,cY)
+	else:
+		return None
 	
 def locateSphereTarget(binary_img):
 	sphere_centers = []
@@ -70,13 +75,40 @@ def locateSphereTarget(binary_img):
 		return (sphere_centers[0]+sphere_centers[1]) / 2
 
 def getAngles(cs):
+	theta1 = None
+	theta2 = None
+	theta3 = None
 	yellow_center, blue_center, green_center, red_center = cs[0], cs[1], cs[2], cs[3]
-	theta1 = math.atan2((blue_center[1]-yellow_center[1]) , (blue_center[0]-yellow_center[0]))
-	theta2 = math.atan2((green_center[1]-blue_center[1])  , (green_center[0]-blue_center[0]))
-	theta2 -= theta1
-	theta3 = math.atan2((red_center[1]-green_center[1])   , (red_center[0]-green_center[0]))
-	theta3 -= (theta2+theta1)
+	if (not(blue_center == None or yellow_center == None)):
+		theta1 = math.atan2((blue_center[1]-yellow_center[1]) , (blue_center[0]-yellow_center[0]))
+	if (not(blue_center == None or green_center == None)):
+		theta2 = math.atan2((green_center[1]-blue_center[1])  , (green_center[0]-blue_center[0]))
+		theta2 -= theta1
+	if (not(red_center == None or green_center == None)):
+		theta3 = math.atan2((red_center[1]-green_center[1])   , (red_center[0]-green_center[0]))
+		if (theta2 != None):
+			theta3 -= (theta2+theta1)
 	return [theta1, theta2, theta3]
+
+def isNone(obj):
+	return obj == None
+
+#def normalizeAngles(angles):
+#	angles_cam1 = angles[0]
+#	angles_cam2 = angles[1]
+#	# The first angle is always shifted by -pi/2
+#	if (not isNone(angles_cam1[0])):
+#		angles_cam1[0] = angles_cam1[0] + pi/2
+#	if (not isNone(angles_cam2[0])):
+#		angles_cam2[0] = angles_cam2[0] + pi/2
+#	if (not isNone(angles_cam1[1])):
+#		angles_cam1[1] = -angles_cam1[1]
+#	if (not isNone(angles_cam2[1])):
+#		angles_cam2[1] = angles_cam2[1]
+#	if (not isNone(angles_cam1[2])):
+#		angles_cam1[2] = -angles_cam1[2]
+#	if (not isNone(angles_cam2[2])):
+#		angles_cam2[2] = -angles_cam2[2]
 
 def getMeans(img_file):
 	img = cv2.imread(img_file)
@@ -102,8 +134,8 @@ def runImages():
 """ Get the centers and the angles for ONLY THE ROBOT """
 centers_and_angles = runImages()
 centers = centers_and_angles[0]
-angles = centers_and_angles[1]
-
+#angles = centers_and_angles[1]
+#print(angles)
 """ Now, get the center of the target sphere and all the robot centers, completely processed """
 
 def getCenters(img,img_index):
@@ -178,11 +210,11 @@ def adjustSize(c1,c2):
 			c2 = c2[list(range(0,size2-1)),:,:]
 			return adjustSize(c1,c2)
 
-centers_from_cameras = getCamCenters()
-centers_in_3D = convertCentersTo3D(centers_from_cameras)
-end_effector_position_wrt_yellow_center = (centers_in_3D[4] - centers_in_3D[1])*0.0345
-end_effector_position_wrt_yellow_center[2] = -end_effector_position_wrt_yellow_center[2]
-print(end_effector_position_wrt_yellow_center, "by image processing")
+#centers_from_cameras = getCamCenters()
+#centers_in_3D = convertCentersTo3D(centers_from_cameras)
+#end_effector_position_wrt_yellow_center = (centers_in_3D[4] - centers_in_3D[1])*0.0345
+#end_effector_position_wrt_yellow_center[2] = -end_effector_position_wrt_yellow_center[2]
+#print(end_effector_position_wrt_yellow_center, "by image processing")
 
 """ MAIN """
 
@@ -248,7 +280,7 @@ def run():
 	plt.ylabel('z co-ordinate')
 	plt.show()
 
-run() # Uncomment to show the predicted vs. actual graphs for target position
+#run() # Uncomment to show the predicted vs. actual graphs for target position
 
 """ ******************************************* FORWARD KINEMATICS PART ************************************************** """
 
