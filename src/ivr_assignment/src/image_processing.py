@@ -160,7 +160,6 @@ def get3Dcoordinates(center1, center2):
 """ 
 param: center_matrix: 
 						A 2 by 5 matrix, where the first row is the centers in format (t,y,b,g,r) from camera1 and the second row is the same 							but for camera2.
-
 return:		
 						A 1 by 5 matrix, whose elements are the centers in format (t,y,b,g,r) in 3D
 """
@@ -217,7 +216,7 @@ def run():
 		a = convertCentersTo3D([data1[i],data2[i]])
 		centersIn3D.append(a)
 		target_pos_wrt_base = (a[0] - a[5]) * 0.0345
-		target_pos_wrt_base[2] = -target_pos_wrt_base[2] + 0.5
+		target_pos_wrt_base[2] = -target_pos_wrt_base[2]
 		target_positions.append(target_pos_wrt_base)
 	target_positions = np.asarray(target_positions)
 	x_values = target_positions[:,0]
@@ -232,7 +231,7 @@ def run():
 	z_values_true = parseRosBag('z_values.bag')
 	z_values_true = z_values_true[0:required_size-1]
 
-	# Let's plot!
+	# Make plots
 
 	plt.figure(1)
 	plt.plot(x_values_true)
@@ -257,7 +256,6 @@ def run():
 	plt.xlabel('Time')
 	plt.ylabel('z co-ordinate')
 	plt.show()
-
 
 """ ******************************************* FORWARD KINEMATICS PART ************************************************** """
 
@@ -312,6 +310,30 @@ def T (param):
     temp = np.matmul (temp, T_alpha)
     return temp
 
+def H_transformation (param):
+    tetha = param[0]
+    alpha = param[1]
+    r = param[2]
+    d = param[3]
+    c_t = math.cos(tetha)
+    s_t = math.sin(tetha)
+    c_a = math.cos(alpha)
+    s_a = math.sin(alpha)
+    return np.array([
+        [c_t, (-1*s_t*c_a), (s_t*s_a), (r*c_t)],
+        [s_t, (c_t*c_a), (-1*c_t*s_a), (r*s_t)],
+        [0, s_a, c_a, d], 
+        [0,0,0,1]
+        ])
+
+def H_matrix(start, end):
+    matrix = np.eye(4)
+    for i in range(start, end):
+        matrix = np.matmul (matrix, H_transformation(H_tab[i]))
+    return matrix
+
+
+
 def getEndEffectorPosition(tetha): # List of 4 angles in radian
 	H_tab = H_table(tetha)
 	T01 = T(H_tab[0])
@@ -322,17 +344,69 @@ def getEndEffectorPosition(tetha): # List of 4 angles in radian
 	temp = (T04[0:3,3])
 	return temp
 
+def d(start, end):
+    matrix = np.eye(4)
+    for i in range (start+1, end+1):
+        matrix = np.matmul(matrix, (H_transformation(H_tab[i-1])))
+    return (matrix [0:3,3]).reshape((3,1))
+
+def R(start, end):
+    matrix = np.eye(4)
+    for i in range (start+1, end+1):
+        matrix = np.matmul(matrix, (H_transformation(H_tab[i-1])))
+    return matrix [0:3,0:3]
+
+def Jacobian():
+    n = 4
+    jacobian = []
+    for i in range(0,4):
+        my_vec = np.matmul(R(0,i), np.array([[0],[0],[1]])).transpose()[0]
+        temp = np.cross(my_vec , (d(0,n)-d(0,i)).transpose()[0])
+        jacobian.append(temp)
+    jacobian = np.asarray(jacobian)
+    jacobian = jacobian.transpose()
+    return jacobian
+
+
+""" *************************************** FIND JOINT ANGLES ******************************************** """
+#H_tab = H_table(tetha)
+def getJointAngles():
+	global H_tab
+	target = np.array([1.35,4,3.5])
+	print("original target", target)
+	endpos = np.array([0,0,7])
+	tetha = np.array([float(0),float(0),float(0),float(0)])
+	H_tab = H_table(tetha)
+	for i in range (50):
+		dist = target-endpos
+		jac = Jacobian()
+		jac_inv = np.linalg.pinv(jac)
+		delta_tetha = np.matmul(jac_inv, dist)
+		index = np.argmax(np.abs(delta_tetha))
+		tetha[index] = (float(tetha[index])+float(delta_tetha[index]))
+		tetha = tetha+delta_tetha
+		H_tab = H_table(tetha)
+		T01 = T(H_tab[0])
+		T12 = T(H_tab[1])
+		T23 = T(H_tab[2])
+		T34 = T(H_tab[3])
+		T04 = np.matmul(np.matmul(np.matmul (T01, T12), T23), T34)
+		endpos = (T04[0:3,3])
+	print("final end effector", endpos)
+	print("tetha", tetha)
+
+getJointAngles()
+H_tab = H_table(np.array([0.0,0.0,0.0,0.0]))
 centers_and_angles = runImages()
 centers = centers_and_angles[0]
+angles = centers_and_angles[1]
 
 def main():
-	centers_and_angles = runImages()
-	centers = centers_and_angles[0]
-	angles = centers_and_angles[1]
+
 	print(angles[0], 'angles with respect to the camera1')
 	print(angles[1], 'angles with respect to the camera2')
 
-	run()
+	#run() # TO RUN THIS, FIRST RUN image1.py and image2.py for 50 seconds, then record values in rosbags, and then uncomment
 
 	# Now, to check output in 10 random positions of the robot
 
