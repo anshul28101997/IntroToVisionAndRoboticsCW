@@ -98,7 +98,7 @@ def Jacobian():
     jacobian = jacobian.transpose()
     return jacobian
 
-target = np.array([1.35,4,3.5])
+target = np.array([0.19858789, 4.35117671, 3.25728612])
 endpos = np.array([0,0,7])
 print("target", target)
 tetha = np.array([float(0),float(0),float(0),float(0)])
@@ -120,3 +120,4 @@ for i in range (50):
     endpos = (T04[0:3,3])
 print("final end effector", endpos)
 print("tetha", tetha)
+print(np.sqrt(np.sum(np.square(np.array(target-endpos)))))
